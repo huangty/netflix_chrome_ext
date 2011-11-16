@@ -1,1 +1,10 @@
 chrome extension for netflix request
+
+Mac OS
+=====
+1. enable experiments API:
+Go to "chrome://flags", enable "Experimental Extension APIs"
+
+2. restart chrome with specific parameters:
+ /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --enable-experimental-extension-apis
+

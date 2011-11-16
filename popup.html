@@ -1,0 +1,33 @@
+<html>
+<head>
+</head>
+<body>
+<TABLE id="requestTable" width="350px" border="1">
+		<TR>
+			<TH>IP</TH>
+			<TH>HTTP Request</TH>
+		</TR>
+</TABLE>
+<script type="text/javascript">
+var table = document.getElementById("requestTable");
+var servers = {};
+delete localStorage['servers'];
+
+chrome.experimental.webRequest.onResponseStarted.addListener(
+    function(details){
+		console.log(details.ip);
+		servers[details.requestId] = details;
+		var lastRow = table.rows.length;
+		var row = table.insertRow(lastRow);
+		var cell1=row.insertCell(0);
+		var cell2=row.insertCell(1);
+		cell1.innerHTML = details.ip;
+		cell2.innerHTML = details.url;
+    },
+    {},
+    []
+    );
+</script>
+</body>
+</html>
+

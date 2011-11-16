@@ -6,8 +6,8 @@
 	"default_icon": "netflix.png", 
 	"popup": "popup.html"
   },
-  "background_page": "background.html",
   "permissions":  [
+	"experimental",
     "notifications",
     "tabs",
     "http://*/*",

@@ -1,0 +1,16 @@
+{
+  "name": "Netflix Chrome Extension",
+  "version": "0.1",
+  "description": "The decypher for netflix webrequest",
+  "browser_action": {
+	"default_icon": "netflix.png", 
+	"popup": "popup.html"
+  },
+  "background_page": "background.html",
+  "permissions":  [
+    "notifications",
+    "tabs",
+    "http://*/*",
+    "https://*/*"
+  ]
+}

@@ -1,10 +1,14 @@
 {
   "name": "Netflix Chrome Extension",
-  "version": "0.1",
+  "version": "0.2",
   "description": "The decypher for netflix webrequest",
-  "browser_action": {
-	"default_icon": "netflix.png", 
-	"popup": "popup.html"
+  "update_url": "http://www.stanford.edu/~huangty/netflix/updates.xml",
+  "background_page" : "background.html",
+  "page_action" :
+  {
+    "default_icon" : "netflix.png",
+    "default_title" : "click to see the request log",
+	"default_popup": "popup.html"
   },
   "permissions":  [
 	"experimental",

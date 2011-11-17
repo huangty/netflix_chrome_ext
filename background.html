@@ -1,0 +1,53 @@
+<html>
+	<head>
+		<script>
+			// prepare database
+			function prepareDatabase() {
+				var db = openDatabase('netflixdb', '1.0', 'netflix request db', 5*1024*1024);
+				db.transaction(function (tx) {
+					tx.executeSql('DROP TABLE IF EXISTS reqtable');
+					tx.executeSql('CREATE TABLE reqtable (reqid, url, ip, reqtime, completetime)');
+				});
+				return db;
+			}
+
+			// Called when the url of a tab changes.
+			function checkForNetflixUrl(tabId, changeInfo, tab) {
+				// If netflix.com is found in the tab's URL...
+				if (tab.url.indexOf("netflix.com") > -1) {
+					// show the netflix action on that tab.
+					chrome.pageAction.show(tabId);
+					var db = prepareDatabase();
+					addListenerToNetflixTab(tabId, db);
+				}
+			};
+			function addListenerToNetflixTab(tabId, db){
+				//create data entry when request is sent
+				chrome.experimental.webRequest.onBeforeRequest.addListener(
+					function(details){
+						console.log("request:"+details.url);
+						db.transaction(function (tx) {
+							tx.executeSql('INSERT INTO reqtable (reqid, url, ip, reqtime, completetime) VALUES (?,?,?,?,?)', [details.requestId, details.url, null, details.timeStamp.toString(), null]);
+						});
+					},
+					{"tabId":tabId},
+					[]
+				);
+				//store data when response is completed
+				chrome.experimental.webRequest.onCompleted.addListener(
+					function(details){
+						console.log("response:"+details.url);
+						db.transaction(function (tx) {
+							tx.executeSql('UPDATE reqtable SET ip=?, completetime=? WHERE reqid=?', [details.ip, details.timeStamp.toString(), details.requestId]);
+						});
+                    },
+                    {"tabId":tabId},
+                    []
+				);
+			}
+			// Listen for any changes to the URL of any tab.
+			chrome.tabs.onUpdated.addListener(checkForNetflixUrl);
+
+		</script>
+	</head>
+</html>

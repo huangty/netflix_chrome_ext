@@ -4,8 +4,10 @@
 <body>
 <TABLE id="requestTable" width="350px" border="1">
 		<TR>
-			<TH>IP</TH>
-			<TH>HTTP Request</TH>
+			<TH>URL</TH>
+			<TH>req time</TH>
+			<TH>Server IP</TH>
+			<TH>complete time</TH>
 		</TR>
 </TABLE>
 <script type="text/javascript">
@@ -13,20 +15,26 @@ var table = document.getElementById("requestTable");
 var servers = {};
 delete localStorage['servers'];
 
-chrome.experimental.webRequest.onResponseStarted.addListener(
-    function(details){
-		console.log(details.ip);
-		servers[details.requestId] = details;
+var db = openDatabase('netflixdb', '1.0', 'netflix request db', 5*1024*1024);
+db.transaction(function (tx) {
+	tx.executeSql('SELECT * FROM reqtable', [], function (tx, results) {
+	  var len = results.rows.length, i;
+	  for (i = 0; i < len; i++) {
 		var lastRow = table.rows.length;
 		var row = table.insertRow(lastRow);
-		var cell1=row.insertCell(0);
-		var cell2=row.insertCell(1);
-		cell1.innerHTML = details.ip;
-		cell2.innerHTML = details.url;
-    },
-    {},
-    []
-    );
+		var cell0=row.insertCell(0);
+		var cell1=row.insertCell(1);
+		var cell2=row.insertCell(2);
+		var cell3=row.insertCell(3);
+		cell0.innerHTML = results.rows.item(i).url;
+		cell1.innerHTML = results.rows.item(i).reqtime;
+		cell2.innerHTML = results.rows.item(i).ip;
+		cell3.innerHTML = results.rows.item(i).completetime;
+	  }
+	});
+});
+
+
 </script>
 </body>
 </html>

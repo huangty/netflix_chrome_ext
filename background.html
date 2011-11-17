@@ -6,7 +6,7 @@
 				var db = openDatabase('netflixdb', '1.0', 'netflix request db', 5*1024*1024);
 				db.transaction(function (tx) {
 					tx.executeSql('DROP TABLE IF EXISTS reqtable');
-					tx.executeSql('CREATE TABLE reqtable (reqid, url, ip, reqtime, completetime)');
+					tx.executeSql('CREATE TABLE reqtable (reqid, url, ip, reqtime, responsetime)');
 				});
 				return db;
 			}
@@ -27,18 +27,18 @@
 					function(details){
 						console.log("request:"+details.url);
 						db.transaction(function (tx) {
-							tx.executeSql('INSERT INTO reqtable (reqid, url, ip, reqtime, completetime) VALUES (?,?,?,?,?)', [details.requestId, details.url, null, details.timeStamp.toString(), null]);
+							tx.executeSql('INSERT INTO reqtable (reqid, url, ip, reqtime, responsetime) VALUES (?,?,?,?,?)', [details.requestId, details.url, null, details.timeStamp.toString(), null]);
 						});
 					},
 					{"tabId":tabId},
 					[]
 				);
 				//store data when response is completed
-				chrome.experimental.webRequest.onCompleted.addListener(
+				chrome.experimental.webRequest.onResponseStarted.addListener(
 					function(details){
 						console.log("response:"+details.url);
 						db.transaction(function (tx) {
-							tx.executeSql('UPDATE reqtable SET ip=?, completetime=? WHERE reqid=?', [details.ip, details.timeStamp.toString(), details.requestId]);
+							tx.executeSql('UPDATE reqtable SET ip=?, responsetime=? WHERE reqid=?', [details.ip, details.timeStamp.toString(), details.requestId]);
 						});
                     },
                     {"tabId":tabId},

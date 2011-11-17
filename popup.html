@@ -1,39 +1,80 @@
 <html>
 <head>
+<style type="text/css">
+tr.d0 td {
+	background-color: #FCF6CF; color: black;
+}
+tr.d1 td {
+	background-color: #FEFEF2; color: black;
+}
+</style>
+
 </head>
 <body>
 <TABLE id="requestTable" width="350px" border="1">
 		<TR>
-			<TH>URL</TH>
-			<TH>req time</TH>
 			<TH>Server IP</TH>
-			<TH>complete time</TH>
+			<TH>Request</TH>
+			<TH>Req time</TH>
+			<TH>Response time</TH>
 		</TR>
 </TABLE>
 <script type="text/javascript">
 var table = document.getElementById("requestTable");
-var servers = {};
-delete localStorage['servers'];
+var read_row = 0;
+window.onload=toBottom;
+
+function toBottom()
+{
+	window.scrollTo(0, document.body.scrollHeight);
+}
 
 var db = openDatabase('netflixdb', '1.0', 'netflix request db', 5*1024*1024);
-db.transaction(function (tx) {
-	tx.executeSql('SELECT * FROM reqtable', [], function (tx, results) {
-	  var len = results.rows.length, i;
-	  for (i = 0; i < len; i++) {
-		var lastRow = table.rows.length;
-		var row = table.insertRow(lastRow);
-		var cell0=row.insertCell(0);
-		var cell1=row.insertCell(1);
-		var cell2=row.insertCell(2);
-		var cell3=row.insertCell(3);
-		cell0.innerHTML = results.rows.item(i).url;
-		cell1.innerHTML = results.rows.item(i).reqtime;
-		cell2.innerHTML = results.rows.item(i).ip;
-		cell3.innerHTML = results.rows.item(i).completetime;
-	  }
-	});
-});
 
+function readDatabase(){
+	
+	var firstRowNeedUpdate = table.rows.length;
+	for(var i = (table.rows.length - 1); i>=0; i--)
+	{
+		var row = table.rows[i];
+		if(row.cells[0].childNodes[0].nodeValue == ""){
+			firstRowNeedUpdate = i;
+			table.deleteRow(i);
+		}
+	}
+
+	db.transaction(function (tx) {
+		tx.executeSql('SELECT * FROM reqtable', [], function (tx, results) {
+		  var len = results.rows.length, i;
+		  
+		  for (i = firstRowNeedUpdate; i < len; i++) {
+			var lastRow = table.rows.length;
+			var row = table.insertRow(lastRow);
+			if( i % 2 !=0){
+				row.className="d1";
+			}else{
+				row.className="d0";
+			}
+			var cell0=row.insertCell(0);
+			var cell1=row.insertCell(1);
+			var cell2=row.insertCell(2);
+			var cell3=row.insertCell(3);
+			cell0.innerHTML = results.rows.item(i).ip;
+			cell1.innerHTML = results.rows.item(i).url;
+			cell2.innerHTML = results.rows.item(i).reqtime;
+			cell3.innerHTML = results.rows.item(i).responsetime;
+		  }
+		});
+	});
+}
+
+chrome.experimental.webRequest.onBeforeRequest.addListener(
+	function(details){
+		readDatabase();
+	},
+	{},
+	[]
+);
 
 </script>
 </body>

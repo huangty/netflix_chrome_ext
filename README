@@ -9,7 +9,7 @@ Go to "chrome://flags", enable "Experimental Extension APIs"
 "/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --enable-experimental-extension-apis"
 
 3. download the extension in chrome, and it will automatically be installed:
-http://www.stanford.edu/~huangty/netflix_chrome_ext.crx
+http://www.stanford.edu/~huangty/netflix/netflix_chrome_ext.crx
 
 Ubuntu
 ======

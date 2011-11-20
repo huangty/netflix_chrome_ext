@@ -1,6 +1,6 @@
 {
   "name": "Netflix Chrome Extension",
-  "version": "0.2",
+  "version": "0.2.0.1",
   "description": "The decypher for netflix webrequest",
   "update_url": "http://www.stanford.edu/~huangty/netflix/updates.xml",
   "background_page" : "background.html",

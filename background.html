@@ -6,7 +6,7 @@
 				var db = openDatabase('netflixdb', '1.0', 'netflix request db', 5*1024*1024);
 				db.transaction(function (tx) {
 					tx.executeSql('DROP TABLE IF EXISTS reqtable');
-					tx.executeSql('CREATE TABLE reqtable (reqid, url, ip, reqtime, responsetime)');
+					tx.executeSql('CREATE TABLE reqtable (reqid, url, ip, reqtime, responsetime, PRIMARY KEY(reqid))');
 				});
 				return db;
 			}
@@ -25,9 +25,13 @@
 				//create data entry when request is sent
 				chrome.experimental.webRequest.onBeforeRequest.addListener(
 					function(details){
-						console.log("request:"+details.url);
 						db.transaction(function (tx) {
-							tx.executeSql('INSERT INTO reqtable (reqid, url, ip, reqtime, responsetime) VALUES (?,?,?,?,?)', [details.requestId, details.url, null, details.timeStamp.toString(), null]);
+							tx.executeSql('SELECT * FROM reqtable WHERE reqid=?', [details.requestId], function (tx, results) {
+								var len = results.rows.length
+								if( len == 0){
+									tx.executeSql('INSERT INTO reqtable (reqid, url, ip, reqtime, responsetime) VALUES (?,?,?,?,?)', [details.requestId, details.url, null, details.timeStamp.toString(), null]);
+								}
+							});
 						});
 					},
 					{"tabId":tabId},

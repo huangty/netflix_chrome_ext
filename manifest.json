@@ -1,8 +1,7 @@
 {
-  "name": "Netflix Chrome Extension",
-  "version": "0.2.0.1",
-  "description": "The decypher for netflix webrequest",
-  "update_url": "http://www.stanford.edu/~huangty/netflix/updates.xml",
+  "name": "Netflix Token Viewer",
+  "version": "0.2",
+  "description": "The token viewer of the netflix traffic",
   "background_page" : "background.html",
   "page_action" :
   {
@@ -11,7 +10,7 @@
 	"default_popup": "popup.html"
   },
   "permissions":  [
-	"experimental",
+    "webRequest",
     "notifications",
     "tabs",
     "http://*/*",

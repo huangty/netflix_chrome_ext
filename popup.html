@@ -95,11 +95,11 @@ function readDatabase(){
 	});
 }
 
-chrome.experimental.webRequest.onBeforeRequest.addListener(
+chrome.webRequest.onBeforeRequest.addListener(
 	function(details){
 		readDatabase();
 	},
-	{},
+	{urls:["<all_urls>"]},
 	[]
 );
 

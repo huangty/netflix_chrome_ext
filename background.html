@@ -14,39 +14,44 @@
 			// Called when the url of a tab changes.
 			function checkForNetflixUrl(tabId, changeInfo, tab) {
 				// If netflix.com is found in the tab's URL...
-				if (tab.url.indexOf("netflix.com") > -1) {
+				if (tab.url.indexOf("netflix.com/WiPlayer") > -1) {
+					//console.log("tab url: " + tab.url);
 					// show the netflix action on that tab.
 					chrome.pageAction.show(tabId);
 					var db = prepareDatabase();
-					addListenerToNetflixTab(tabId, db);
+					addListenerToNetflixTab(tabId, db, tab.url);
 				}
 			};
-			function addListenerToNetflixTab(tabId, db){
+			function addListenerToNetflixTab(tabId, db, tabUrl){
 				//create data entry when request is sent
-				chrome.experimental.webRequest.onBeforeRequest.addListener(
+				chrome.webRequest.onBeforeRequest.addListener(
 					function(details){
-						db.transaction(function (tx) {
-							tx.executeSql('SELECT * FROM reqtable WHERE reqid=?', [details.requestId], function (tx, results) {
-								var len = results.rows.length
-								if( len == 0){
-									tx.executeSql('INSERT INTO reqtable (reqid, url, ip, reqtime, responsetime) VALUES (?,?,?,?,?)', [details.requestId, details.url, null, details.timeStamp.toString(), null]);
-								}
+						//console.log("url: " + details.url);
+						if(details.url.indexOf("range") > -1){
+							//report to local storage
+							db.transaction(function (tx) {
+								tx.executeSql('SELECT * FROM reqtable WHERE reqid=?', [details.requestId], function (tx, results) {
+									var len = results.rows.length
+									if( len == 0){
+										tx.executeSql('INSERT INTO reqtable (reqid, url, ip, reqtime, responsetime) VALUES (?,?,?,?,?)', [details.requestId, details.url, null, details.timeStamp.toString(), null]);
+									}
+								});
 							});
-						});
+						}
 					},
-					{"tabId":tabId},
+					{"tabId":tabId, urls:["<all_urls>"]},
 					[]
 				);
 				//store data when response is completed
-				chrome.experimental.webRequest.onResponseStarted.addListener(
+				chrome.webRequest.onResponseStarted.addListener(
 					function(details){
-						console.log("response:"+details.url);
+						//console.log("response:"+details.url);
 						db.transaction(function (tx) {
 							tx.executeSql('UPDATE reqtable SET ip=?, responsetime=? WHERE reqid=?', [details.ip, details.timeStamp.toString(), details.requestId]);
 						});
-                    },
-                    {"tabId":tabId},
-                    []
+					},
+				        {"tabId":tabId, urls: ["<all_urls>"]},
+				        []
 				);
 			}
 			// Listen for any changes to the URL of any tab.
